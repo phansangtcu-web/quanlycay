@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Sơ đồ quản lý 84 cây</title>
+
+<script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+
+<style>
+
+body{
+font-family:Arial;
+text-align:center;
+}
+
+.map{
+position:relative;
+width:1400px;
+margin:auto;
+}
+
+.tree{
+position:absolute;
+width:26px;
+height:26px;
+background:yellow;
+border:1px solid black;
+font-weight:bold;
+line-height:26px;
+cursor:pointer;
+font-size:12px;
+}
+
+.popup{
+position:fixed;
+top:50%;
+left:50%;
+transform:translate(-50%,-50%);
+background:white;
+padding:20px;
+border:2px solid black;
+display:none;
+width:260px;
+}
+
+</style>
+</head>
+
+<body>
+
+<h2>SƠ ĐỒ QUẢN LÝ CÂY TRUNG ĐOÀN</h2>
+
+<div class="map">
+
+<img src="sodo.png" width="1400">
+
+<div id="trees"></div>
+
+</div>
+
+<div id="popup" class="popup"></div>
+
+<script>
+
+let treesData={};
+
+fetch("dulieucay.xlsx")
+.then(res=>res.arrayBuffer())
+.then(data=>{
+
+let workbook=XLSX.read(data);
+let sheet=workbook.Sheets[workbook.SheetNames[0]];
+let rows=XLSX.utils.sheet_to_json(sheet);
+
+rows.forEach(r=>{
+treesData[r.STT]=r;
+});
+
+createTrees();
+
+});
+
+function createTrees(){
+
+let container=document.getElementById("trees");
+
+let positions=[
+
+/* 1-10 khán đài */
+[150,930],[150,900],[150,870],[150,840],[150,810],
+[150,650],[150,620],[150,590],[150,560],[150,530],
+
+/* 11-23 bên trái sân */
+[230,520],[270,520],[310,520],[350,520],[390,520],
+[430,520],[470,520],[510,520],[550,520],[590,520],
+[630,520],[670,520],[710,520],
+
+/* 24-30 hàng dưới sân */
+[740,560],[740,600],[740,640],[740,680],[740,720],[740,760],[740,800],
+
+/* 31-43 bên phải sân */
+[710,880],[670,880],[630,880],[590,880],[550,880],
+[510,880],[470,880],[430,880],[390,880],[350,880],
+[310,880],[270,880],[230,880],
+
+/* 44-58 dọc nhà trực ban */
+[170,1030],[210,1030],[250,1030],[290,1030],[330,1030],
+[370,1030],[410,1030],[450,1030],[490,1030],[530,1030],
+[570,1030],[610,1030],[650,1030],[690,1030],[730,1030],
+
+/* 59-63 phía dưới */
+[780,1030],[780,1080],[780,1130],[780,1180],[780,1230],
+
+/* 64-68 */
+[780,900],[780,860],[780,820],[780,780],[780,740],
+
+/* 69-71 */
+[820,840],[860,840],[900,840],
+
+/* 72-77 */
+[740,780],[740,740],[740,700],[740,660],[740,620],[740,580],
+
+/* 78-82 */
+[820,560],[860,520],[900,480],[940,440],[980,400],
+
+/* 83-84 */
+[620,420],[580,420]
+
+];
+
+for(let i=1;i<=84;i++){
+
+let tree=document.createElement("div");
+
+tree.className="tree";
+tree.innerText=i;
+
+let p=positions[i-1];
+
+tree.style.top=p[0]+"px";
+tree.style.left=p[1]+"px";
+
+tree.onclick=function(){
+showTree(i);
+};
+
+container.appendChild(tree);
+
+}
+
+}
+
+function showTree(id){
+
+let t=treesData[id];
+
+if(!t){
+alert("Không có dữ liệu cây");
+return;
+}
+
+let html=`
+<h3>Cây số ${id}</h3>
+Loại cây: ${t["Loại cây"]}<br>
+Năm trồng: ${t["Năm trồng"]}<br>
+Chiều cao: ${t["Chiều cao"]}<br>
+Độ rộng tán: ${t["Độ rộng tán"]}<br>
+Tình trạng: ${t["Tình trạng"]}<br><br>
+<button onclick="closePopup()">Đóng</button>
+`;
+
+document.getElementById("popup").innerHTML=html;
+document.getElementById("popup").style.display="block";
+
+}
+
+function closePopup(){
+document.getElementById("popup").style.display="none";
+}
+
+</script>
+
+</body>
+</html>
