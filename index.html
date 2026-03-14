@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>Quản lý cây trung đoàn</title>
+
+<script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+
+<style>
+
+body{
+font-family:Arial;
+text-align:center;
+background:#f2f2f2;
+}
+
+img{
+max-width:100%;
+height:auto;
+}
+
+#popup{
+position:fixed;
+top:50%;
+left:50%;
+transform:translate(-50%,-50%);
+background:white;
+border:3px solid black;
+padding:20px;
+display:none;
+width:300px;
+box-shadow:0 0 20px rgba(0,0,0,0.4);
+}
+
+button{
+margin-top:10px;
+padding:6px 15px;
+}
+
+</style>
+</head>
+
+<body>
+
+<h2>SƠ ĐỒ QUẢN LÝ CÂY TRUNG ĐOÀN</h2>
+
+<img src="sodo.png" usemap="#caymap">
+
+<map name="caymap">
+
+<!-- HÀNG KHÁN ĐÀI -->
+<area shape="rect" coords="880,120,910,150" onclick="showTree(1)">
+<area shape="rect" coords="850,120,880,150" onclick="showTree(2)">
+<area shape="rect" coords="820,120,850,150" onclick="showTree(3)">
+<area shape="rect" coords="790,120,820,150" onclick="showTree(4)">
+<area shape="rect" coords="760,120,790,150" onclick="showTree(5)">
+
+<area shape="rect" coords="610,120,640,150" onclick="showTree(6)">
+<area shape="rect" coords="580,120,610,150" onclick="showTree(7)">
+<area shape="rect" coords="550,120,580,150" onclick="showTree(8)">
+<area shape="rect" coords="520,120,550,150" onclick="showTree(9)">
+<area shape="rect" coords="490,120,520,150" onclick="showTree(10)">
+
+<!-- HÀNG BÊN TRÁI SÂN -->
+<area shape="rect" coords="500,220,530,250" onclick="showTree(11)">
+<area shape="rect" coords="500,260,530,290" onclick="showTree(12)">
+<area shape="rect" coords="500,300,530,330" onclick="showTree(13)">
+<area shape="rect" coords="500,340,530,370" onclick="showTree(14)">
+<area shape="rect" coords="500,380,530,410" onclick="showTree(15)">
+<area shape="rect" coords="500,420,530,450" onclick="showTree(16)">
+<area shape="rect" coords="500,460,530,490" onclick="showTree(17)">
+<area shape="rect" coords="500,500,530,530" onclick="showTree(18)">
+<area shape="rect" coords="500,540,530,570" onclick="showTree(19)">
+<area shape="rect" coords="500,580,530,610" onclick="showTree(20)">
+<area shape="rect" coords="500,620,530,650" onclick="showTree(21)">
+<area shape="rect" coords="500,660,530,690" onclick="showTree(22)">
+<area shape="rect" coords="500,700,530,730" onclick="showTree(23)">
+
+<!-- HÀNG DƯỚI SÂN -->
+<area shape="rect" coords="550,730,580,760" onclick="showTree(24)">
+<area shape="rect" coords="600,730,630,760" onclick="showTree(25)">
+<area shape="rect" coords="650,730,680,760" onclick="showTree(26)">
+<area shape="rect" coords="700,730,730,760" onclick="showTree(27)">
+<area shape="rect" coords="750,730,780,760" onclick="showTree(28)">
+<area shape="rect" coords="800,730,830,760" onclick="showTree(29)">
+<area shape="rect" coords="850,730,880,760" onclick="showTree(30)">
+
+<!-- BÊN PHẢI SÂN -->
+<area shape="rect" coords="910,660,940,690" onclick="showTree(31)">
+<area shape="rect" coords="910,620,940,650" onclick="showTree(32)">
+<area shape="rect" coords="910,580,940,610" onclick="showTree(33)">
+<area shape="rect" coords="910,540,940,570" onclick="showTree(34)">
+<area shape="rect" coords="910,500,940,530" onclick="showTree(35)">
+<area shape="rect" coords="910,460,940,490" onclick="showTree(36)">
+<area shape="rect" coords="910,420,940,450" onclick="showTree(37)">
+<area shape="rect" coords="910,380,940,410" onclick="showTree(38)">
+<area shape="rect" coords="910,340,940,370" onclick="showTree(39)">
+<area shape="rect" coords="910,300,940,330" onclick="showTree(40)">
+<area shape="rect" coords="910,260,940,290" onclick="showTree(41)">
+<area shape="rect" coords="910,220,940,250" onclick="showTree(42)">
+<area shape="rect" coords="910,180,940,210" onclick="showTree(43)">
+
+<!-- KHU NHÀ TRỰC BAN -->
+<area shape="rect" coords="1180,140,1210,170" onclick="showTree(44)">
+<area shape="rect" coords="1180,180,1210,210" onclick="showTree(45)">
+<area shape="rect" coords="1180,220,1210,250" onclick="showTree(46)">
+<area shape="rect" coords="1180,260,1210,290" onclick="showTree(47)">
+<area shape="rect" coords="1180,300,1210,330" onclick="showTree(48)">
+<area shape="rect" coords="1180,340,1210,370" onclick="showTree(49)">
+<area shape="rect" coords="1180,380,1210,410" onclick="showTree(50)">
+<area shape="rect" coords="1180,420,1210,450" onclick="showTree(51)">
+<area shape="rect" coords="1180,460,1210,490" onclick="showTree(52)">
+<area shape="rect" coords="1180,500,1210,530" onclick="showTree(53)">
+<area shape="rect" coords="1180,540,1210,570" onclick="showTree(54)">
+<area shape="rect" coords="1180,580,1210,610" onclick="showTree(55)">
+<area shape="rect" coords="1180,620,1210,650" onclick="showTree(56)">
+<area shape="rect" coords="1180,660,1210,690" onclick="showTree(57)">
+<area shape="rect" coords="1180,700,1210,730" onclick="showTree(58)">
+
+</map>
+
+<div id="popup"></div>
+
+<script>
+
+let trees={}
+
+fetch("dulieucay.xlsx")
+.then(res=>res.arrayBuffer())
+.then(data=>{
+
+let workbook=XLSX.read(data)
+
+let sheet=workbook.Sheets[workbook.SheetNames[0]]
+
+let rows=XLSX.utils.sheet_to_json(sheet)
+
+rows.forEach(r=>{
+trees[r.STT]=r
+})
+
+})
+
+function showTree(id){
+
+let d=trees[id]
+
+if(!d){
+alert("Chưa có dữ liệu")
+return
+}
+
+document.getElementById("popup").innerHTML=
+
+"<b>Cây số:</b> "+id+"<br><br>"+
+"<b>Loại cây:</b> "+d["Loại cây"]+"<br>"+
+"<b>Khu vực:</b> "+d["Khu vực"]+"<br>"+
+"<b>Ngày trồng:</b> "+d["Ngày trồng"]+"<br>"+
+"<b>Chiều cao:</b> "+d["Chiều cao"]+"<br>"+
+"<b>Tình trạng:</b> "+d["Tình trạng"]+"<br><br>"+
+"<button onclick='dong()'>Đóng</button>"
+
+document.getElementById("popup").style.display="block"
+
+}
+
+function dong(){
+document.getElementById("popup").style.display="none"
+}
+
+</script>
+
+</body>
+</html>
