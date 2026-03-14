@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>Sơ đồ quản lý cây</title>
+
+<script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+
+<style>
+
+body{
+font-family:Arial;
+text-align:center;
+}
+
+#container{
+position:relative;
+width:1200px;
+margin:auto;
+}
+
+#container img{
+width:1200px;
+}
+
+.tree{
+position:absolute;
+width:25px;
+height:25px;
+background:transparent;
+border:0;
+cursor:pointer;
+}
+
+#popup{
+position:fixed;
+top:50%;
+left:50%;
+transform:translate(-50%,-50%);
+background:white;
+border:3px solid black;
+padding:20px;
+display:none;
+width:300px;
+}
+
+</style>
+</head>
+
+<body>
+
+<h2>SƠ ĐỒ QUẢN LÝ CÂY</h2>
+
+<div id="container">
+
+<img src="sodo.png">
+
+<!-- ví dụ một số vị trí -->
+<button class="tree" style="top:130px;left:870px" onclick="showTree(1)"></button>
+<button class="tree" style="top:130px;left:840px" onclick="showTree(2)"></button>
+<button class="tree" style="top:130px;left:810px" onclick="showTree(3)"></button>
+<button class="tree" style="top:130px;left:780px" onclick="showTree(4)"></button>
+<button class="tree" style="top:130px;left:750px" onclick="showTree(5)"></button>
+
+<button class="tree" style="top:130px;left:610px" onclick="showTree(6)"></button>
+<button class="tree" style="top:130px;left:580px" onclick="showTree(7)"></button>
+<button class="tree" style="top:130px;left:550px" onclick="showTree(8)"></button>
+<button class="tree" style="top:130px;left:520px" onclick="showTree(9)"></button>
+<button class="tree" style="top:130px;left:490px" onclick="showTree(10)"></button>
+
+<!-- tiếp tục thêm tới 84 -->
+
+</div>
+
+<div id="popup"></div>
+
+<script>
+
+let trees={}
+let loaded=false
+
+function excelDate(serial){
+let utc_days=Math.floor(serial-25569)
+let utc_value=utc_days*86400
+let date=new Date(utc_value*1000)
+return date.toLocaleDateString("vi-VN")
+}
+
+fetch("dulieucay.xlsx")
+.then(r=>r.arrayBuffer())
+.then(data=>{
+
+let wb=XLSX.read(data,{type:"array"})
+let sheet=wb.Sheets[wb.SheetNames[0]]
+let rows=XLSX.utils.sheet_to_json(sheet)
+
+rows.forEach(r=>{
+
+let stt=r["STT"]
+
+let ngay=r["Ngày trồng"]
+
+if(typeof ngay==="number"){
+ngay=excelDate(ngay)
+}
+
+trees[stt]={
+
+loaicay:r["Loại cây"],
+khuvuc:r["Khu vực"],
+ngay:ngay,
+cao:r["Chiều cao"],
+tinhtrang:r["Tình trạng"]
+
+}
+
+})
+
+loaded=true
+
+})
+
+function showTree(id){
+
+if(!loaded){
+alert("Đang tải dữ liệu")
+return
+}
+
+let d=trees[id]
+
+if(!d){
+alert("Không có dữ liệu cây "+id)
+return
+}
+
+document.getElementById("popup").innerHTML=
+
+"<b>Cây số:</b> "+id+"<br><br>"+
+"<b>Loại cây:</b> "+d.loaicay+"<br>"+
+"<b>Khu vực:</b> "+d.khuvuc+"<br>"+
+"<b>Ngày trồng:</b> "+d.ngay+"<br>"+
+"<b>Chiều cao:</b> "+d.cao+"<br>"+
+"<b>Tình trạng:</b> "+d.tinhtrang+
+"<br><br><button onclick='dong()'>Đóng</button>"
+
+document.getElementById("popup").style.display="block"
+
+}
+
+function dong(){
+document.getElementById("popup").style.display="none"
+}
+
+</script>
+
+</body>
+</html>
