@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+
+<meta charset="UTF-8">
+<title>Quản lý cây Trung đoàn</title>
+
+<script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+
+<style>
+
+body{
+font-family:Arial;
+margin:0;
+text-align:center;
+}
+
+#map{
+position:relative;
+max-width:1400px;
+margin:auto;
+}
+
+#map img{
+width:100%;
+display:block;
+}
+
+svg{
+position:absolute;
+top:0;
+left:0;
+width:100%;
+height:100%;
+}
+
+.zone{
+fill:transparent;
+cursor:pointer;
+}
+
+#popup{
+
+position:fixed;
+top:50%;
+left:50%;
+transform:translate(-50%,-50%);
+
+background:white;
+border:3px solid black;
+padding:20px;
+display:none;
+width:340px;
+
+font-size:18px;
+
+}
+
+button{
+
+font-size:16px;
+padding:6px 20px;
+
+}
+
+</style>
+
+</head>
+
+
+<body>
+
+<h2>SƠ ĐỒ QUẢN LÝ CÂY KHU VỰC TRUNG ĐOÀN BỘ</h2>
+
+<div id="map">
+
+<img src="sodo.png">
+
+<svg id="zones" viewBox="0 0 1200 900"></svg>
+
+</div>
+
+<div id="popup"></div>
+
+
+<script>
+
+let trees = {}
+
+function excelDateToJS(serial){
+
+let utc_days = Math.floor(serial - 25569)
+
+let utc_value = utc_days * 86400
+
+let date = new Date(utc_value * 1000)
+
+return date.toLocaleDateString("vi-VN")
+
+}
+
+
+/* ĐỌC FILE EXCEL */
+
+fetch("dulieucay.xlsx")
+.then(res => res.arrayBuffer())
+.then(data => {
+
+let wb = XLSX.read(data,{type:"array"})
+
+let sheet = wb.Sheets[wb.SheetNames[0]]
+
+let rows = XLSX.utils.sheet_to_json(sheet,{defval:""})
+
+rows.forEach(r=>{
+
+let ngay = r["Ngày trồng"]
+
+if(typeof ngay === "number"){
+ngay = excelDateToJS(ngay)
+}
+
+trees[r["STT"]] = {
+
+macay: r["Mã cây"],
+khuvuc: r["Khu  vực"],
+loaicay: r["Loại cây"],
+ngay: ngay,
+chieucao: r["Chiều cao"],
+tan: r["Độ rộng tán"],
+tinhtrang: r["Tình trạng"]
+
+}
+
+})
+
+})
+
+
+
+/* TỌA ĐỘ 84 CÂY */
+
+let positions = {
+
+1:[950,170],
+2:[920,170],
+3:[890,170],
+4:[860,170],
+5:[830,170],
+
+6:[600,170],
+7:[570,170],
+8:[540,170],
+9:[510,170],
+10:[480,170],
+
+11:[520,270],
+12:[520,310],
+13:[520,350],
+14:[520,390],
+15:[520,430],
+16:[520,470],
+17:[520,510],
+18:[520,550],
+20:[520,600],
+21:[520,640],
+22:[520,680],
+23:[520,720],
+
+24:[600,750],
+25:[640,750],
+26:[680,750],
+27:[720,750],
+28:[760,750],
+29:[800,750],
+30:[840,750],
+
+31:[900,720],
+32:[900,680],
+33:[900,640],
+34:[900,600],
+35:[900,560],
+36:[900,520],
+37:[900,480],
+38:[900,440],
+39:[900,400],
+40:[900,360],
+41:[900,320],
+42:[900,280],
+43:[900,240],
+
+44:[1040,210],
+45:[1040,250],
+46:[1040,290],
+47:[1040,330],
+48:[1040,370],
+49:[1040,410],
+50:[1040,450],
+51:[1040,490],
+52:[1040,530],
+53:[1040,570],
+54:[1040,610],
+55:[1040,650],
+56:[1040,690],
+57:[1040,730],
+58:[1040,770],
+
+59:[950,820],
+60:[900,820],
+61:[850,820],
+62:[800,820],
+63:[750,820],
+
+64:[850,770],
+65:[800,770],
+66:[750,770],
+67:[700,770],
+68:[650,770],
+
+69:[900,780],
+70:[900,820],
+71:[900,860],
+
+72:[820,780],
+73:[760,780],
+74:[700,780],
+75:[640,780],
+76:[580,780],
+77:[520,780],
+
+78:[480,820],
+79:[420,780],
+80:[360,820],
+81:[300,820],
+82:[240,820],
+
+83:[230,720],
+84:[230,660]
+
+}
+
+
+
+/* TẠO VÙNG CLICK */
+
+let svg = document.getElementById("zones")
+
+for(let i in positions){
+
+let p = positions[i]
+
+let rect = document.createElementNS("http://www.w3.org/2000/svg","rect")
+
+rect.setAttribute("x",p[0])
+rect.setAttribute("y",p[1])
+rect.setAttribute("width",35)
+rect.setAttribute("height",35)
+rect.setAttribute("class","zone")
+
+rect.addEventListener("click",()=>showTree(i))
+
+svg.appendChild(rect)
+
+}
+
+
+
+/* HIỂN THỊ THÔNG TIN CÂY */
+
+function showTree(id){
+
+let t = trees[id]
+
+if(!t){
+
+alert("Chưa có dữ liệu cây "+id)
+return
+
+}
+
+document.getElementById("popup").innerHTML =
+
+"<b>Cây số:</b> "+id+"<br><br>"+
+
+"<b>Mã cây:</b> "+t.macay+"<br>"+
+"<b>Loại cây:</b> "+t.loaicay+"<br>"+
+"<b>Khu vực:</b> "+t.khuvuc+"<br>"+
+"<b>Ngày trồng:</b> "+t.ngay+"<br>"+
+"<b>Chiều cao:</b> "+t.chieucao+"<br>"+
+"<b>Độ rộng tán:</b> "+t.tan+"<br>"+
+"<b>Tình trạng:</b> "+t.tinhtrang+
+
+"<br><br><button onclick='closePopup()'>Đóng</button>"
+
+document.getElementById("popup").style.display="block"
+
+}
+
+
+
+function closePopup(){
+
+document.getElementById("popup").style.display="none"
+
+}
+
+</script>
+
+</body>
+</html>
