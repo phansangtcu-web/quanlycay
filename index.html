@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Quản lý cây Trung đoàn</title>
+
+<script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+
+<style>
+
+body{
+font-family:Arial;
+margin:0;
+text-align:center;
+}
+
+#map{
+position:relative;
+max-width:1400px;
+margin:auto;
+}
+
+#map img{
+width:100%;
+display:block;
+}
+
+#zones{
+position:absolute;
+top:0;
+left:0;
+width:100%;
+height:100%;
+}
+
+.zone{
+fill:transparent;
+cursor:pointer;
+}
+
+#popup{
+
+position:fixed;
+top:50%;
+left:50%;
+transform:translate(-50%,-50%);
+background:white;
+border:3px solid black;
+padding:20px;
+display:none;
+width:340px;
+font-size:18px;
+
+}
+
+</style>
+
+</head>
+
+
+<body>
+
+<h2>SƠ ĐỒ QUẢN LÝ CÂY KHU VỰC TRUNG ĐOÀN BỘ</h2>
+
+<div id="map">
+
+<img src="sodo.png">
+
+<svg id="zones" viewBox="0 0 1600 900"></svg>
+
+</div>
+
+<div id="popup"></div>
+
+
+<script>
+
+/* ======================
+ĐỌC EXCEL
+====================== */
+
+let trees={}
+
+function excelDateToJS(serial){
+
+let utc_days=Math.floor(serial-25569)
+let utc_value=utc_days*86400
+let date=new Date(utc_value*1000)
+
+return date.toLocaleDateString("vi-VN")
+
+}
+
+fetch("dulieucay.xlsx")
+.then(res=>res.arrayBuffer())
+.then(data=>{
+
+let wb=XLSX.read(data,{type:"array"})
+let sheet=wb.Sheets[wb.SheetNames[0]]
+
+let rows=XLSX.utils.sheet_to_json(sheet,{defval:""})
+
+rows.forEach(r=>{
+
+let ngay=r["Ngày trồng"]
+
+if(typeof ngay==="number"){
+ngay=excelDateToJS(ngay)
+}
+
+trees[r["STT"]] = {
+
+macay:r["Mã cây"],
+khuvuc:r["Khu vực"],
+loaicay:r["Loại cây"],
+ngay:ngay,
+chieucao:r["Chiều cao"],
+tan:r["Độ rộng tán"],
+tinhtrang:r["Tình trạng"]
+
+}
+
+})
+
+})
+
+
+/* ======================
+TỌA ĐỘ CÂY (ĐÃ SỬA)
+====================== */
+
+let positions={
+
+1:[1180,160],2:[1140,160],3:[1100,160],4:[1060,160],5:[1020,160],
+6:[880,160],7:[840,160],8:[800,160],9:[760,160],10:[720,160],
+
+11:[760,250],12:[760,290],13:[760,330],14:[760,370],15:[760,410],
+16:[760,450],17:[760,490],18:[760,530],
+
+20:[760,580],21:[760,620],22:[760,660],23:[760,700],
+
+24:[840,740],25:[880,740],26:[920,740],27:[960,740],28:[1000,740],
+29:[1040,740],30:[1080,740],
+
+31:[1140,700],32:[1140,660],33:[1140,620],34:[1140,580],
+35:[1140,540],36:[1140,500],37:[1140,460],38:[1140,420],
+39:[1140,380],40:[1140,340],41:[1140,300],42:[1140,260],43:[1140,220],
+
+/* sửa nhóm 44 → 58 */
+
+44:[1320,180],
+45:[1320,220],
+46:[1320,260],
+47:[1320,300],
+48:[1320,340],
+49:[1320,380],
+50:[1320,420],
+51:[1320,460],
+52:[1320,500],
+53:[1320,540],
+54:[1320,580],
+55:[1320,620],
+56:[1320,660],
+57:[1320,700],
+58:[1320,740],
+
+/* sửa nhóm 59 → 63 */
+
+59:[1200,800],
+60:[1140,800],
+61:[1080,800],
+62:[1020,800],
+63:[960,800],
+
+/* sửa nhóm 64 → 68 */
+
+64:[1080,750],
+65:[1020,750],
+66:[960,750],
+67:[900,750],
+68:[840,750],
+
+69:[1140,770],
+70:[1140,810],
+71:[1140,850],
+
+72:[1040,770],
+73:[980,770],
+74:[920,770],
+75:[860,770],
+76:[800,770],
+77:[740,770],
+
+78:[680,810],
+79:[600,770],
+80:[520,810],
+81:[440,810],
+82:[360,810],
+
+83:[320,700],
+84:[320,640]
+
+}
+
+
+/* ======================
+TẠO VÙNG CLICK
+====================== */
+
+let svg=document.getElementById("zones")
+
+for(let i in positions){
+
+let p=positions[i]
+
+let rect=document.createElementNS("http://www.w3.org/2000/svg","rect")
+
+rect.setAttribute("x",p[0])
+rect.setAttribute("y",p[1])
+
+rect.setAttribute("width",40)
+rect.setAttribute("height",40)
+
+rect.setAttribute("class","zone")
+
+rect.addEventListener("click",()=>showTree(i))
+
+svg.appendChild(rect)
+
+}
+
+
+/* ======================
+POPUP
+====================== */
+
+function showTree(id){
+
+let t=trees[id]
+
+if(!t){
+alert("Chưa có dữ liệu cây "+id)
+return
+}
+
+document.getElementById("popup").innerHTML=
+
+"<b>Cây số:</b> "+id+"<br><br>"+
+
+"<b>Mã cây:</b> "+t.macay+"<br>"+
+"<b>Loại cây:</b> "+t.loaicay+"<br>"+
+"<b>Khu vực:</b> "+t.khuvuc+"<br>"+
+"<b>Ngày trồng:</b> "+t.ngay+"<br>"+
+"<b>Chiều cao:</b> "+t.chieucao+"<br>"+
+"<b>Độ rộng tán:</b> "+t.tan+"<br>"+
+"<b>Tình trạng:</b> "+t.tinhtrang+
+
+"<br><br><button onclick='closePopup()'>Đóng</button>"
+
+document.getElementById("popup").style.display="block"
+
+}
+
+function closePopup(){
+
+document.getElementById("popup").style.display="none"
+
+}
+
+</script>
+
+</body>
+</html>
