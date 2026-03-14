@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>Sơ đồ quản lý cây</title>
+
+<script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+
+<style>
+
+body{
+margin:0;
+font-family:Arial;
+text-align:center;
+background:#f2f2f2;
+}
+
+#container{
+position:relative;
+max-width:1200px;
+margin:auto;
+}
+
+#container img{
+width:100%;
+height:auto;
+display:block;
+}
+
+svg{
+position:absolute;
+top:0;
+left:0;
+width:100%;
+height:100%;
+}
+
+.click{
+fill:transparent;
+cursor:pointer;
+}
+
+#popup{
+position:fixed;
+top:50%;
+left:50%;
+transform:translate(-50%,-50%);
+background:white;
+border:3px solid black;
+padding:20px;
+display:none;
+width:300px;
+z-index:1000;
+}
+
+</style>
+</head>
+
+<body>
+
+<h2>SƠ ĐỒ QUẢN LÝ CÂY</h2>
+
+<div id="container">
+
+<img src="sodo.png">
+
+<svg viewBox="0 0 1200 900">
+
+<!-- ví dụ một số điểm click -->
+<rect class="click" x="1000" y="150" width="30" height="30" onclick="showTree(1)"/>
+<rect class="click" x="970" y="150" width="30" height="30" onclick="showTree(2)"/>
+<rect class="click" x="940" y="150" width="30" height="30" onclick="showTree(3)"/>
+<rect class="click" x="910" y="150" width="30" height="30" onclick="showTree(4)"/>
+<rect class="click" x="880" y="150" width="30" height="30" onclick="showTree(5)"/>
+
+<rect class="click" x="620" y="150" width="30" height="30" onclick="showTree(6)"/>
+<rect class="click" x="590" y="150" width="30" height="30" onclick="showTree(7)"/>
+<rect class="click" x="560" y="150" width="30" height="30" onclick="showTree(8)"/>
+<rect class="click" x="530" y="150" width="30" height="30" onclick="showTree(9)"/>
+<rect class="click" x="500" y="150" width="30" height="30" onclick="showTree(10)"/>
+
+<!-- tiếp tục tới 84 -->
+
+</svg>
+
+</div>
+
+<div id="popup"></div>
+
+<script>
+
+let trees={}
+
+fetch("dulieucay.xlsx")
+.then(r=>r.arrayBuffer())
+.then(data=>{
+
+let wb=XLSX.read(data,{type:"array"})
+let sheet=wb.Sheets[wb.SheetNames[0]]
+let rows=XLSX.utils.sheet_to_json(sheet)
+
+rows.forEach(r=>{
+trees[r.STT]=r
+})
+
+})
+
+function showTree(id){
+
+let d=trees[id]
+
+if(!d){
+alert("Chưa có dữ liệu cây "+id)
+return
+}
+
+document.getElementById("popup").innerHTML=
+
+"<b>Cây số:</b> "+id+"<br><br>"+
+"<b>Loại cây:</b> "+d["Loại cây"]+"<br>"+
+"<b>Khu vực:</b> "+d["Khu vực"]+"<br>"+
+"<b>Ngày trồng:</b> "+d["Ngày trồng"]+"<br>"+
+"<b>Chiều cao:</b> "+d["Chiều cao"]+"<br>"+
+"<b>Tình trạng:</b> "+d["Tình trạng"]+
+"<br><br><button onclick='dong()'>Đóng</button>"
+
+document.getElementById("popup").style.display="block"
+
+}
+
+function dong(){
+document.getElementById("popup").style.display="none"
+}
+
+</script>
+
+</body>
+</html>
